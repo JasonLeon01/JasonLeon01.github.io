@@ -10,7 +10,7 @@
 }
 body{
   font-family: Arial,Verdana,"微软雅黑","Pingfang SC","Simsun";
-  font-size: 175%;
+  font-size: 125%;
   color: rgb(255, 255, 255)fff;
 }
 .nav{
@@ -23,6 +23,7 @@ body{
   z-index:9999;
   display: flex;
   justify-content: center;
+  align-items: center;
 }
 .nav ul {
   list-style: none;
