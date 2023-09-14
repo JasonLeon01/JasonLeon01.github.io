@@ -15,11 +15,11 @@ body{
 }
 .nav{
   width: 80%;
+  height: 10%;
   left: 10%;
-  height: 100px;
   background-image: linear-gradient(to right, rgba(255, 255, 255, 0.75), rgba(0, 0, 0, 0.75));
-  font-size: 32px;
-  position:relative;
+  font-size: 150%;
+  position: absolute;
   z-index:9999;
   display: flex;
   justify-content: center;
