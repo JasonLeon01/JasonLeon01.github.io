@@ -1,0 +1,15 @@
+.intro {
+  width: 80%;
+  height: 84%;
+  background-color: rgba(150, 150, 150, 0.75);
+  position: absolute;
+  top: calc(4% + 100px);
+  left: 10%;
+  justify-content: center;
+}
+.introtxt{
+  width: 44%;
+  position: relative;
+  left: 3%;
+  box-sizing: border-box;
+}
