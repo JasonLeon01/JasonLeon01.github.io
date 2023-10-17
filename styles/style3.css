@@ -1,7 +1,6 @@
 .list {
-  width: 80%;
-  height: 86%;
-  background-color: rgba(150, 150, 150, 0.75);
+  table-layout: fixed;
+  width: 33%;
   position: absolute;
   top: 12%;
   left: 10%;
@@ -18,4 +17,7 @@
   justify-content: center;
   align-items: center;
   border: 10px;
+}
+.piccontent {
+  height: width;
 }
