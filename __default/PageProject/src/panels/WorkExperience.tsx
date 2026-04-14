@@ -1,4 +1,6 @@
 import { Box, Stack, Typography } from '@mui/material'
+import type { Language } from '../languageContext'
+import { useLanguage } from '../useLanguage'
 
 type WorkItem = {
   company: string
@@ -8,24 +10,54 @@ type WorkItem = {
 }
 
 export default function WorkExperiencePanel() {
-  const items: WorkItem[] = [
-    {
-      company: 'NetEase (Hangzhou) Network Co., Ltd.',
-      role: 'Game Development Engineer',
-      timeRange: '2025-07 ~ 2026-04',
-      detail: 'Where Winds Meet (燕云十六声) project team',
+  const { language } = useLanguage()
+
+  const contentByLanguage: Record<Language, { title: string; items: WorkItem[] }> = {
+    en: {
+      title: 'Work Experience',
+      items: [
+        {
+          company: 'NetEase (Hangzhou) Network Co., Ltd.',
+          role: 'Game Development Engineer',
+          timeRange: '2025-07 ~ 2026-04',
+          detail: 'Where Winds Meet (燕云十六声) project team',
+        },
+        {
+          company: 'ByteDance · Guangzhou Games Studio',
+          role: 'Game Client Developer (Intern)',
+          timeRange: '2025-01 ~ 2025-03',
+        },
+        {
+          company: 'Tencent IEG · TiMi J5 Studio · Arashi project team',
+          role: 'Game Client Developer (Intern)',
+          timeRange: '2024-06 ~ 2024-09',
+        },
+      ],
     },
-    {
-      company: 'ByteDance · Guangzhou Games Studio',
-      role: 'Game Client Developer (Intern)',
-      timeRange: '2025-01 ~ 2025-03',
+    zh: {
+      title: '工作经历',
+      items: [
+        {
+          company: '网易（杭州）网络有限公司',
+          role: '游戏研发工程师',
+          timeRange: '2025-07 ~ 2026-04',
+          detail: '燕云十六声项目组',
+        },
+        {
+          company: '字节跳动·广州游戏工作室',
+          role: '游戏客户端开发（实习）',
+          timeRange: '2025-01 ~ 2025-03',
+        },
+        {
+          company: '腾讯 IEG·天美 J5 工作室·Arashi 项目组',
+          role: '游戏客户端开发（实习）',
+          timeRange: '2024-06 ~ 2024-09',
+        },
+      ],
     },
-    {
-      company: 'Tencent IEG · TiMi J5 Studio · Arashi project team',
-      role: 'Game Client Developer (Intern)',
-      timeRange: '2024-06 ~ 2024-09',
-    },
-  ]
+  }
+
+  const { title, items } = contentByLanguage[language]
 
   return (
     <Box
@@ -48,7 +80,7 @@ export default function WorkExperiencePanel() {
             color: 'text.primary',
           }}
         >
-          Work Experience
+          {title}
         </Typography>
         <Stack spacing={1.5} sx={{ width: '100%' }}>
           {items.map((item) => (

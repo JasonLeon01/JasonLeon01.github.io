@@ -1,4 +1,6 @@
 import { Box, Stack, Typography } from '@mui/material'
+import type { Language } from '../languageContext'
+import { useLanguage } from '../useLanguage'
 
 type EducationItem = {
   school: string
@@ -8,20 +10,46 @@ type EducationItem = {
 }
 
 export default function EducationPanel() {
-  const items: EducationItem[] = [
-    {
-      school: 'Beijing Institute of Technology',
-      field: 'Software Engineering',
-      degree: "Master's",
-      timeRange: '2023-09 ~ 2025-09',
+  const { language } = useLanguage()
+
+  const contentByLanguage: Record<Language, { title: string; items: EducationItem[] }> = {
+    en: {
+      title: 'Education Experience',
+      items: [
+        {
+          school: 'Beijing Institute of Technology',
+          field: 'Software Engineering',
+          degree: "Master's",
+          timeRange: '2023-09 ~ 2025-09',
+        },
+        {
+          school: 'Northeastern University (Shenyang)',
+          field: 'Applied Physics',
+          degree: "Bachelor's",
+          timeRange: '2019-09 ~ 2023-07',
+        },
+      ],
     },
-    {
-      school: 'Northeastern University (Shenyang)',
-      field: 'Applied Physics',
-      degree: "Bachelor's",
-      timeRange: '2019-09 ~ 2023-07',
+    zh: {
+      title: '教育经历',
+      items: [
+        {
+          school: '北京理工大学',
+          field: '软件工程',
+          degree: '硕士',
+          timeRange: '2023-09 ~ 2025-09',
+        },
+        {
+          school: '东北大学（沈阳）',
+          field: '应用物理学',
+          degree: '本科',
+          timeRange: '2019-09 ~ 2023-07',
+        },
+      ],
     },
-  ]
+  }
+
+  const { title, items } = contentByLanguage[language]
 
   return (
     <Box
@@ -44,7 +72,7 @@ export default function EducationPanel() {
             color: 'text.primary',
           }}
         >
-          Education Experience
+          {title}
         </Typography>
         <Stack spacing={1.25} sx={{ width: '100%' }}>
           {items.map((item) => (

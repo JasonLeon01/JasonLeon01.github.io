@@ -1,9 +1,11 @@
 import { Fragment } from 'react'
 import type { ReactNode } from 'react'
 import { CssBaseline, Divider, List, ListItem } from '@mui/material'
+import { LanguageProvider } from './language.tsx'
 import AboutPanel from './panels/About.tsx'
 import EducationPanel from './panels/Education.tsx'
 import HeroPanel from './panels/SelfInfo.tsx'
+import LanguagePanel from './panels/Language.tsx'
 import SelectedProjectsPanel from './panels/SelectedProjects.tsx'
 import WorkExperiencePanel from './panels/WorkExperience.tsx'
 
@@ -15,6 +17,7 @@ type PanelDefinition = {
 function App() {
   const panels: PanelDefinition[] = [
     { key: 'hero', element: <HeroPanel /> },
+    { key: 'language', element: <LanguagePanel /> },
     { key: 'about', element: <AboutPanel /> },
     { key: 'education', element: <EducationPanel /> },
     { key: 'work', element: <WorkExperiencePanel /> },
@@ -22,7 +25,7 @@ function App() {
   ]
 
   return (
-    <>
+    <LanguageProvider>
       <CssBaseline />
       <List
         disablePadding
@@ -65,7 +68,7 @@ function App() {
           </Fragment>
         ))}
       </List>
-    </>
+    </LanguageProvider>
   )
 }
 
