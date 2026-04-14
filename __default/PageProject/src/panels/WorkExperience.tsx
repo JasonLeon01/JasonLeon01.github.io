@@ -17,6 +17,12 @@ export default function WorkExperiencePanel() {
       title: 'Work Experience',
       items: [
         {
+          company: 'Tencent IEG · LightSpeed Studio',
+          role: 'Game Client Developer',
+          timeRange: '2026-05 ~ Present',
+          detail: 'PUBGM project team',
+        },
+        {
           company: 'NetEase (Hangzhou) Network Co., Ltd.',
           role: 'Game Development Engineer',
           timeRange: '2025-07 ~ 2026-04',
@@ -28,9 +34,10 @@ export default function WorkExperiencePanel() {
           timeRange: '2025-01 ~ 2025-03',
         },
         {
-          company: 'Tencent IEG · TiMi J5 Studio · Arashi project team',
+          company: 'Tencent IEG · TiMi J5 Studio',
           role: 'Game Client Developer (Intern)',
           timeRange: '2024-06 ~ 2024-09',
+          detail: 'Arashi project team',
         },
       ],
     },
@@ -38,7 +45,13 @@ export default function WorkExperiencePanel() {
       title: '工作经历',
       items: [
         {
-          company: '网易（杭州）网络有限公司',
+          company: '腾讯 IEG·光子工作室群',
+          role: '游戏客户端开发',
+          timeRange: '2026-05 ~ 至今',
+          detail: 'PUBGM 项目组',
+        },
+        {
+          company: '网易（杭州）网络有限公司·互动娱乐事业群·水滴事业部',
           role: '游戏研发工程师',
           timeRange: '2025-07 ~ 2026-04',
           detail: '燕云十六声项目组',
@@ -49,9 +62,10 @@ export default function WorkExperiencePanel() {
           timeRange: '2025-01 ~ 2025-03',
         },
         {
-          company: '腾讯 IEG·天美 J5 工作室·Arashi 项目组',
+          company: '腾讯 IEG·天美 J5 工作室',
           role: '游戏客户端开发（实习）',
           timeRange: '2024-06 ~ 2024-09',
+          detail: 'Arashi 项目组',
         },
       ],
     },

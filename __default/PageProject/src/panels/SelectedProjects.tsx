@@ -35,23 +35,23 @@ export default function SelectedProjectsPanel() {
                 details: [
                     {
                         en: 'Python-first engine built on PyQt5 and SFML3 with a focus on rapid iteration.',
-                        zh: '以 Python 为主的引擎实现，基于 PyQt5 与 SFML3，强调快速迭代。',
+                        zh: '基于 PyQt5 和 SFML3 的 Python 绑定的 Tilemap 游戏引擎；',
                     },
                     {
                         en: 'Core features inspired by RPG Maker, plus extensible gameplay systems.',
-                        zh: '核心功能参考 RPG Maker，同时提供可扩展的玩法系统。',
+                        zh: '支持类似 RPG Maker 的主要功能；',
                     },
                     {
                         en: 'High-performance particle system and voxel-style map support.',
-                        zh: '实现高性能粒子系统，并支持体素风格地图。',
+                        zh: '支持高性能粒子系统和瓦片地图；',
                     },
                     {
                         en: 'Material-property-based lighting and screen-space reflection effects.',
-                        zh: '基于材质属性的光照与屏幕空间反射效果。',
+                        zh: '支持基于材质属性的光影效果和镜面反射效果；',
                     },
                     {
                         en: 'Editor and runtime both support UE-style blueprint node graph editing and execution.',
-                        zh: '编辑器与运行时均支持 UE 风格蓝图节点图的编辑与执行。',
+                        zh: 'Editor 和 Runtime 层面均支持类UE蓝图的节点编辑和运行功能；',
                     },
                 ],
             },
@@ -73,15 +73,15 @@ export default function SelectedProjectsPanel() {
                 details: [
                     {
                         en: 'Produces pybind11-based bindings for SFML from upstream source code.',
-                        zh: '从上游源代码生成基于 pybind11 的 SFML 绑定。',
+                        zh: '基于 SFML3 和 pybind11 制作的 SFML 接口 Python 自动化绑定工具；',
                     },
                     {
                         en: 'Scans SFML projects and generates binding code with consistent naming and structure.',
-                        zh: '扫描 SFML 工程并生成命名/结构一致的绑定代码。',
+                        zh: '支持扫描 SFML 项目源码，生成 pybind11 绑定代码；',
                     },
                     {
                         en: 'Uses Clang AST to analyze dependencies and generate sources/CMakeLists in topological order.',
-                        zh: '使用 Clang AST 分析依赖，并按拓扑顺序生成源码与 CMakeLists。',
+                        zh: '使用 Clang AST 扫描 SFML 项目，自动按照依赖的拓扑排序关系生成源文件和 CMakeLists；',
                     },
                 ],
             },
@@ -103,11 +103,11 @@ export default function SelectedProjectsPanel() {
                 details: [
                     {
                         en: 'Built with C++ and the lightweight EasyX graphics library.',
-                        zh: '使用 C++ 与轻量级 EasyX 图形库开发。',
+                        zh: '使用 C++ 和轻量级图形库 easyX 制作的传统风格魔塔类游戏，玩家会操控勇士在魔塔内探索，救出公主；',
                     },
                     {
                         en: 'Designed and implemented smooth combat pacing, input handling, and battle animations.',
-                        zh: '设计并实现战斗节奏、输入处理与战斗动画表现。',
+                        zh: '游戏内有较为精美的战斗过程，实现了流畅的操作和战斗动画表现；',
                     },
                 ],
             },
