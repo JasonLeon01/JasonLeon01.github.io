@@ -17,9 +17,9 @@ export default function WorkExperiencePanel() {
       title: 'Work Experience',
       items: [
         {
-          company: 'Tencent IEG · LightSpeed Studio',
+          company: 'Tencent IEG · LightSpeed Studio · Quantum Studio',
           role: 'Game Client Developer',
-          timeRange: '2026-05 ~ Present',
+          timeRange: '2026-04 ~ Present',
           detail: 'PUBGM project team',
         },
         {
@@ -45,9 +45,9 @@ export default function WorkExperiencePanel() {
       title: '工作经历',
       items: [
         {
-          company: '腾讯 IEG·光子工作室群',
+          company: '腾讯 IEG·光子工作室群·量子工作室',
           role: '游戏客户端开发',
-          timeRange: '2026-05 ~ 至今',
+          timeRange: '2026-04 ~ 至今',
           detail: 'PUBGM 项目组',
         },
         {
