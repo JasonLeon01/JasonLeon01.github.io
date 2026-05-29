@@ -1,16 +1,50 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Box, CssBaseline, FormControl, MenuItem, Select } from '@mui/material'
 import type { SelectChangeEvent } from '@mui/material'
 import LudorkSidebar from './LudorkSidebar'
 import LudorkContent from './LudorkContent'
 import type { LanguageKey, SelectedDoc } from './LudorkSidebar'
+import {
+  parseLudorkLanguage,
+  isLudorkRoot,
+  setLudorkLanguageInUrl,
+} from './ludorkUrl'
 import './ludork.css'
 
 export default function LudorkApp() {
-  const [language, setLanguage] = useState<LanguageKey>('en_GB')
+  const [language, setLanguage] = useState<LanguageKey>(
+    () => parseLudorkLanguage() ?? 'en_GB',
+  )
   const [selected, setSelected] = useState<SelectedDoc>({ type: 'home' })
   // Free-navigate path (e.g. "Ludork/LICENSE.md") — set by markdown link clicks
   const [freePath, setFreePath] = useState<string | null>(null)
+
+  useEffect(() => {
+    document.title = 'Ludork'
+  }, [])
+
+  // Normalize /Ludork/ → /Ludork/en_GB; sync language from URL on first load
+  useEffect(() => {
+    if (isLudorkRoot()) {
+      setLudorkLanguageInUrl('en_GB', true)
+      setLanguage('en_GB')
+      return
+    }
+    const fromUrl = parseLudorkLanguage()
+    if (fromUrl) setLanguage(fromUrl)
+  }, [])
+
+  useEffect(() => {
+    const onPopState = () => {
+      const fromUrl = parseLudorkLanguage()
+      if (!fromUrl) return
+      setLanguage(fromUrl)
+      setFreePath(null)
+      setSelected({ type: 'home' })
+    }
+    window.addEventListener('popstate', onPopState)
+    return () => window.removeEventListener('popstate', onPopState)
+  }, [])
 
   // When sidebar selection changes, clear any free-navigate override
   const handleSelect = (doc: SelectedDoc) => {
@@ -62,9 +96,11 @@ export default function LudorkApp() {
               <Select
                 value={language}
                 onChange={(e: SelectChangeEvent) => {
-                  setLanguage(e.target.value as LanguageKey)
+                  const next = e.target.value as LanguageKey
+                  setLanguage(next)
                   setFreePath(null)
                   setSelected({ type: 'home' })
+                  setLudorkLanguageInUrl(next)
                 }}
               >
                 <MenuItem value="en_GB">English</MenuItem>
