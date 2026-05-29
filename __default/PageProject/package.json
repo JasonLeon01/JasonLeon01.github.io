@@ -5,8 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build --base=/Ludork/ && npm run cp404",
-    "cp404": "node -e \"require('fs').copyFileSync('dist/index.html', 'dist/404.html')\"",
+    "build": "tsc -b && vite build && node scripts/postbuild.mjs",
     "lint": "eslint .",
     "preview": "vite preview"
   },
