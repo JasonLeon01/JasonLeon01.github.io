@@ -1,5 +1,6 @@
 import {
   Box,
+  IconButton,
   List,
   ListItemButton,
   ListItemText,
@@ -11,6 +12,26 @@ function HomeIcon() {
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z" />
       <path d="M9 21V12h6v9" />
+    </svg>
+  )
+}
+
+/** Inline chevron-left icon for collapse button */
+function ChevronLeftIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M15 18l-6-6 6-6" />
+    </svg>
+  )
+}
+
+/** Inline hamburger menu icon for expand button */
+export function MenuIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="3" y1="6" x2="21" y2="6" />
+      <line x1="3" y1="12" x2="21" y2="12" />
+      <line x1="3" y1="18" x2="21" y2="18" />
     </svg>
   )
 }
@@ -67,12 +88,16 @@ type LudorkSidebarProps = {
   language: LanguageKey
   selected: SelectedDoc
   onSelect: (doc: SelectedDoc) => void
+  collapsed: boolean
+  onToggle: () => void
 }
 
 export default function LudorkSidebar({
   language,
   selected,
   onSelect,
+  collapsed,
+  onToggle,
 }: LudorkSidebarProps) {
   const entries = DOCS[language]
 
@@ -80,22 +105,27 @@ export default function LudorkSidebar({
     <Box
       className="ludork-sidebar"
       sx={{
-        width: 280,
-        minWidth: 280,
+        width: collapsed ? 0 : 280,
+        minWidth: collapsed ? 0 : 280,
         height: '100vh',
-        overflow: 'auto',
-        borderRight: 1,
+        overflow: collapsed ? 'hidden' : 'auto',
+        borderRight: collapsed ? 0 : 1,
         borderColor: 'divider',
         display: 'flex',
         flexDirection: 'column',
         bgcolor: 'background.paper',
+        transition: 'width 0.3s ease, min-width 0.3s ease',
+        whiteSpace: 'nowrap',
       }}
     >
       {/* Header */}
-      <Box sx={{ px: 2, pt: 2, pb: 1 }}>
+      <Box sx={{ px: 2, pt: 2, pb: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Typography variant="h6" sx={{ fontWeight: 700 }}>
           Ludork
         </Typography>
+        <IconButton onClick={onToggle} size="small" aria-label="Collapse sidebar">
+          <ChevronLeftIcon />
+        </IconButton>
       </Box>
 
       {/* Doc list */}

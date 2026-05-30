@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Box, CssBaseline, FormControl, MenuItem, Select } from '@mui/material'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Box, CssBaseline, FormControl, IconButton, MenuItem, Select, useMediaQuery, useTheme } from '@mui/material'
 import type { SelectChangeEvent } from '@mui/material'
-import LudorkSidebar from './LudorkSidebar'
+import LudorkSidebar, { MenuIcon } from './LudorkSidebar'
 import LudorkContent from './LudorkContent'
 import type { LanguageKey, SelectedDoc } from './LudorkSidebar'
 import {
@@ -18,6 +18,19 @@ export default function LudorkApp() {
   const [selected, setSelected] = useState<SelectedDoc>({ type: 'home' })
   // Free-navigate path (e.g. "Ludork/LICENSE.md") — set by markdown link clicks
   const [freePath, setFreePath] = useState<string | null>(null)
+
+  // Responsive sidebar: auto-collapse below md (900px)
+  const theme = useTheme()
+  const isNarrow = useMediaQuery(theme.breakpoints.down('md'))
+  const [collapsed, setCollapsed] = useState(isNarrow)
+
+  useEffect(() => {
+    setCollapsed(isNarrow)
+  }, [isNarrow])
+
+  const handleToggle = useCallback(() => {
+    setCollapsed((prev) => !prev)
+  }, [])
 
   useEffect(() => {
     document.title = 'Ludork'
@@ -63,12 +76,32 @@ export default function LudorkApp() {
   return (
     <>
       <CssBaseline />
-      <Box sx={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+      <Box sx={{ display: 'flex', height: '100vh', overflow: 'hidden', position: 'relative' }}>
         <LudorkSidebar
           language={language}
           selected={selected}
           onSelect={handleSelect}
+          collapsed={collapsed}
+          onToggle={handleToggle}
         />
+        {/* Floating expand button when sidebar is collapsed */}
+        {collapsed && (
+          <IconButton
+            onClick={handleToggle}
+            sx={{
+              position: 'absolute',
+              top: 8,
+              left: 8,
+              zIndex: 1200,
+              bgcolor: 'background.paper',
+              boxShadow: 2,
+              '&:hover': { bgcolor: 'action.hover' },
+            }}
+            aria-label="Expand sidebar"
+          >
+            <MenuIcon />
+          </IconButton>
+        )}
         <Box
           component="main"
           sx={{
