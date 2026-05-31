@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Box, CssBaseline, FormControl, IconButton, MenuItem, Select, useMediaQuery, useTheme } from '@mui/material'
+import { Box, CssBaseline, Drawer, FormControl, IconButton, MenuItem, Select, useMediaQuery, useTheme } from '@mui/material'
 import type { SelectChangeEvent } from '@mui/material'
 import LudorkSidebar, { MenuIcon } from './LudorkSidebar'
 import LudorkContent from './LudorkContent'
@@ -10,6 +10,8 @@ import {
   setLudorkLanguageInUrl,
 } from './ludorkUrl'
 import './ludork.css'
+
+const SIDEBAR_WIDTH = 280
 
 export default function LudorkApp() {
   const [language, setLanguage] = useState<LanguageKey>(
@@ -59,10 +61,14 @@ export default function LudorkApp() {
     return () => window.removeEventListener('popstate', onPopState)
   }, [])
 
-  // When sidebar selection changes, clear any free-navigate override
+  // When sidebar selection changes, clear any free-navigate override.
+  // On mobile, also close the drawer after selection.
   const handleSelect = (doc: SelectedDoc) => {
     setFreePath(null)
     setSelected(doc)
+    if (isNarrow) {
+      setCollapsed(true)
+    }
   }
 
   const contentPath = useMemo<string | null>(() => {
@@ -73,17 +79,75 @@ export default function LudorkApp() {
     return `Ludork/docs/${selected.lang}/${selected.entry.filename}`
   }, [selected, language, freePath])
 
+  // Drawer paper styles shared across variants
+  const drawerPaperSx = {
+    width: SIDEBAR_WIDTH,
+    boxSizing: 'border-box',
+  }
+
   return (
     <>
       <CssBaseline />
       <Box sx={{ display: 'flex', height: '100vh', overflow: 'hidden', position: 'relative' }}>
-        <LudorkSidebar
-          language={language}
-          selected={selected}
-          onSelect={handleSelect}
-          collapsed={collapsed}
-          onToggle={handleToggle}
-        />
+        {isNarrow ? (
+          /* Mobile: overlay sidebar with backdrop (plain Box — no Drawer/Modal portal quirks) */
+          !collapsed && (
+            <>
+              {/* Backdrop */}
+              <Box
+                onClick={() => setCollapsed(true)}
+                sx={{
+                  position: 'fixed',
+                  inset: 0,
+                  zIndex: 1199,
+                  bgcolor: 'rgba(0,0,0,0.5)',
+                }}
+              />
+              {/* Sidebar */}
+              <Box
+                sx={{
+                  position: 'fixed',
+                  top: 0,
+                  left: 0,
+                  bottom: 0,
+                  width: SIDEBAR_WIDTH,
+                  zIndex: 1200,
+                  display: 'flex',
+                }}
+              >
+                <LudorkSidebar
+                  language={language}
+                  selected={selected}
+                  onSelect={handleSelect}
+                />
+              </Box>
+            </>
+          )
+        ) : (
+          /* Desktop: permanent sidebar that pushes content; can be toggled */
+          !collapsed && (
+            <Drawer
+              variant="permanent"
+              sx={{
+                width: SIDEBAR_WIDTH,
+                flexShrink: 0,
+                '& .MuiDrawer-paper': {
+                  ...drawerPaperSx,
+                  position: 'relative',
+                  height: '100vh',
+                },
+              }}
+            >
+              <LudorkSidebar
+                language={language}
+                selected={selected}
+                onSelect={handleSelect}
+                onToggle={handleToggle}
+              />
+            </Drawer>
+          )
+        )}
+
         {/* Floating expand button when sidebar is collapsed */}
         {collapsed && (
           <IconButton
@@ -102,6 +166,7 @@ export default function LudorkApp() {
             <MenuIcon />
           </IconButton>
         )}
+
         <Box
           component="main"
           sx={{

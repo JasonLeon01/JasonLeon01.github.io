@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build && node scripts/postbuild.mjs",
+    "build": "tsc -b && node scripts/generate-docs-manifest.mjs && vite build && node scripts/postbuild.mjs",
     "deploy:sync": "node scripts/sync-to-root.mjs",
     "lint": "eslint .",
     "preview": "vite preview"

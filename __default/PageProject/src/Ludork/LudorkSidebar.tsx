@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import {
   Box,
   IconButton,
@@ -7,20 +8,21 @@ import {
   Typography,
 } from '@mui/material'
 /** Inline 20px home icon to avoid adding @mui/icons-material */
-function HomeIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z" />
-      <path d="M9 21V12h6v9" />
-    </svg>
-  )
-}
-
 /** Inline chevron-left icon for collapse button */
 function ChevronLeftIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M15 18l-6-6 6-6" />
+    </svg>
+  )
+}
+
+/** Inline 20px home icon to avoid adding @mui/icons-material */
+function HomeIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z" />
+      <path d="M9 21V12h6v9" />
     </svg>
   )
 }
@@ -48,37 +50,10 @@ const HOME_LABEL: Record<LanguageKey, string> = {
   zh_CN: '开始界面',
 }
 
-/** Document entries keyed by language. Lexicographically sorted already. */
-const DOCS: Record<LanguageKey, DocEntry[]> = {
-  en_GB: [
-    { filename: '01.Introduction.md', displayName: 'Introduction' },
-    { filename: '02.Project and Runtime Structure.md', displayName: 'Project and Runtime Structure' },
-    { filename: '03.Core Engine Classes.md', displayName: 'Core Engine Classes' },
-    { filename: '04.Scenes.md', displayName: 'Scenes' },
-    { filename: '05.Maps and Actors.md', displayName: 'Maps and Actors' },
-    { filename: '06.UI and Windows.md', displayName: 'UI and Windows' },
-    { filename: '07.Input.md', displayName: 'Input' },
-    { filename: '08.Resources Audio and Effects.md', displayName: 'Resources, Audio and Effects' },
-    { filename: '09.Data and Saves.md', displayName: 'Data and Saves' },
-    { filename: '10.Node Functions and Events.md', displayName: 'Node Functions and Events' },
-    { filename: '11.Configuration Reference.md', displayName: 'Configuration Reference' },
-    { filename: '12.Packaging and Practical Notes.md', displayName: 'Packaging and Practical Notes' },
-  ],
-  zh_CN: [
-    { filename: '01.介绍.md', displayName: '介绍' },
-    { filename: '02.项目与运行时结构.md', displayName: '项目与运行时结构' },
-    { filename: '03.Engine核心类.md', displayName: 'Engine 核心类' },
-    { filename: '04.场景.md', displayName: '场景' },
-    { filename: '05.地图与角色.md', displayName: '地图与角色' },
-    { filename: '06.UI与窗口.md', displayName: 'UI 与窗口' },
-    { filename: '07.输入.md', displayName: '输入' },
-    { filename: '08.资源音频与效果.md', displayName: '资源、音频与效果' },
-    { filename: '09.数据与存档.md', displayName: '数据与存档' },
-    { filename: '10.节点函数与事件.md', displayName: '节点函数与事件' },
-    { filename: '11.配置参考.md', displayName: '配置参考' },
-    { filename: '12.打包与实用注意.md', displayName: '打包与实用注意' },
-  ],
-}
+/** Shape of the generated docs-manifest.json */
+type Manifest = Record<LanguageKey, DocEntry[]>
+
+const MANIFEST_URL = '/Ludork/docs-manifest.json'
 
 export type SelectedDoc =
   | { type: 'home' }
@@ -88,33 +63,46 @@ type LudorkSidebarProps = {
   language: LanguageKey
   selected: SelectedDoc
   onSelect: (doc: SelectedDoc) => void
-  collapsed: boolean
-  onToggle: () => void
+  /** Optional toggle callback — when provided, a collapse button is shown in the header (desktop). */
+  onToggle?: () => void
 }
 
 export default function LudorkSidebar({
   language,
   selected,
   onSelect,
-  collapsed,
   onToggle,
 }: LudorkSidebarProps) {
-  const entries = DOCS[language]
+  const [docs, setDocs] = useState<Manifest | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    fetch(MANIFEST_URL)
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        return res.json()
+      })
+      .then((json) => {
+        if (!cancelled) setDocs(json)
+      })
+      .catch((err) => {
+        if (!cancelled) console.error('Failed to load docs manifest:', err)
+      })
+    return () => { cancelled = true }
+  }, [])
+
+  const entries: DocEntry[] = docs?.[language] ?? []
 
   return (
     <Box
       className="ludork-sidebar"
       sx={{
-        width: collapsed ? 0 : 280,
-        minWidth: collapsed ? 0 : 280,
-        height: '100vh',
-        overflow: collapsed ? 'hidden' : 'auto',
-        borderRight: collapsed ? 0 : 1,
-        borderColor: 'divider',
+        width: 280,
+        height: '100%',
+        overflow: 'auto',
         display: 'flex',
         flexDirection: 'column',
         bgcolor: 'background.paper',
-        transition: 'width 0.3s ease, min-width 0.3s ease',
         whiteSpace: 'nowrap',
       }}
     >
@@ -123,9 +111,11 @@ export default function LudorkSidebar({
         <Typography variant="h6" sx={{ fontWeight: 700 }}>
           Ludork
         </Typography>
-        <IconButton onClick={onToggle} size="small" aria-label="Collapse sidebar">
-          <ChevronLeftIcon />
-        </IconButton>
+        {onToggle && (
+          <IconButton onClick={onToggle} size="small" aria-label="Collapse sidebar">
+            <ChevronLeftIcon />
+          </IconButton>
+        )}
       </Box>
 
       {/* Doc list */}
