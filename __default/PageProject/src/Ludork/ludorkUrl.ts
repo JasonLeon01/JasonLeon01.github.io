@@ -1,25 +1,23 @@
 import type { LanguageKey } from './LudorkSidebar'
 
-const LANG_PATTERN = /^\/Ludork\/(en_GB|zh_CN)\/?$/
+const LANG_PARAM = 'lang'
 
 export function parseLudorkLanguage(
-  pathname = window.location.pathname,
+  search = window.location.search,
 ): LanguageKey | null {
-  const match = pathname.match(LANG_PATTERN)
-  return match ? (match[1] as LanguageKey) : null
+  const lang = new URLSearchParams(search).get(LANG_PARAM)
+  if (lang === 'en_GB' || lang === 'zh_CN') return lang
+  return null
 }
 
 export function isLudorkRoot(pathname = window.location.pathname): boolean {
   return /^\/Ludork\/?$/.test(pathname)
 }
 
-export function ludorkLanguagePath(lang: LanguageKey): string {
-  return `/Ludork/${lang}`
-}
-
 export function setLudorkLanguageInUrl(lang: LanguageKey, replace = false): void {
-  const path = ludorkLanguagePath(lang)
-  const url = path + window.location.search + window.location.hash
+  const params = new URLSearchParams(window.location.search)
+  params.set(LANG_PARAM, lang)
+  const url = `${window.location.pathname}?${params.toString()}${window.location.hash}`
   if (replace) {
     history.replaceState(null, '', url)
   } else {

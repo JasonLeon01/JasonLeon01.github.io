@@ -61,6 +61,21 @@ function byNumericPrefix(a: string, b: string): number {
 }
 
 const GITHUB_CONTENTS_API = 'https://api.github.com/repos/JasonLeon01/Ludork/contents/docs'
+const CACHE_PREFIX = 'ludork-docs-'
+
+function loadCache(lang: LanguageKey): DocEntry[] | null {
+  try {
+    const raw = sessionStorage.getItem(CACHE_PREFIX + lang)
+    if (raw) return JSON.parse(raw) as DocEntry[]
+  } catch { /* sessionStorage unavailable */ }
+  return null
+}
+
+function saveCache(lang: LanguageKey, docs: DocEntry[]): void {
+  try {
+    sessionStorage.setItem(CACHE_PREFIX + lang, JSON.stringify(docs))
+  } catch { /* quota exceeded or unavailable */ }
+}
 
 export type SelectedDoc =
   | { type: 'home' }
@@ -84,6 +99,15 @@ export default function LudorkSidebar({
 
   useEffect(() => {
     let cancelled = false
+
+    // 1. Try sessionStorage cache first
+    const cached = loadCache(language)
+    if (cached) {
+      setEntries(cached)
+      return
+    }
+
+    // 2. Fetch from GitHub API
     setEntries([])
     fetch(`${GITHUB_CONTENTS_API}/${language}`)
       .then((res) => {
@@ -96,6 +120,7 @@ export default function LudorkSidebar({
           .filter((f) => f.type === 'file' && f.name.endsWith('.md'))
           .map((f) => ({ filename: f.name, displayName: displayName(f.name) }))
         docs.sort((a, b) => byNumericPrefix(a.filename, b.filename))
+        saveCache(language, docs)
         setEntries(docs)
       })
       .catch((err) => {

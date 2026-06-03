@@ -38,15 +38,17 @@ export default function LudorkApp() {
     document.title = 'Ludork'
   }, [])
 
-  // Normalize /Ludork/ → /Ludork/en_GB; sync language from URL on first load
+  // Sync language from URL query param on first load; default to en_GB at root
   useEffect(() => {
+    const fromUrl = parseLudorkLanguage()
+    if (fromUrl) {
+      setLanguage(fromUrl)
+      return
+    }
     if (isLudorkRoot()) {
       setLudorkLanguageInUrl('en_GB', true)
       setLanguage('en_GB')
-      return
     }
-    const fromUrl = parseLudorkLanguage()
-    if (fromUrl) setLanguage(fromUrl)
   }, [])
 
   useEffect(() => {
