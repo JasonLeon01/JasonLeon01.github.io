@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useMemo } from 'react'
 import {
   Box,
   IconButton,
@@ -50,10 +50,47 @@ const HOME_LABEL: Record<LanguageKey, string> = {
   zh_CN: '开始界面',
 }
 
-/** Shape of the generated docs-manifest.json */
-type Manifest = Record<LanguageKey, DocEntry[]>
-
-const MANIFEST_URL = '/Ludork/docs-manifest.json'
+/** Hardcoded docs index — mirrors https://github.com/JasonLeon01/Ludork/tree/main/docs */
+const DOCS_MANIFEST: Record<LanguageKey, DocEntry[]> = {
+  en_GB: [
+    { filename: '01.Introduction.md', displayName: 'Introduction' },
+    { filename: '02.Editor Basics.md', displayName: 'Editor Basics' },
+    { filename: '03.Project Configuration and Assets.md', displayName: 'Project Configuration and Assets' },
+    { filename: '04.Tilesets Autotiles and Maps.md', displayName: 'Tilesets Autotiles and Maps' },
+    { filename: '05.Blueprints and Actors.md', displayName: 'Blueprints and Actors' },
+    { filename: '06.Data Localisation Nodes and Testing.md', displayName: 'Data Localisation Nodes and Testing' },
+    { filename: '07.Project and Runtime Structure.md', displayName: 'Project and Runtime Structure' },
+    { filename: '08.Core Engine Classes.md', displayName: 'Core Engine Classes' },
+    { filename: '09.Scenes.md', displayName: 'Scenes' },
+    { filename: '10.Maps and Actors.md', displayName: 'Maps and Actors' },
+    { filename: '11.UI and Windows.md', displayName: 'UI and Windows' },
+    { filename: '12.Input.md', displayName: 'Input' },
+    { filename: '13.Resources Audio and Effects.md', displayName: 'Resources Audio and Effects' },
+    { filename: '14.Data and Saves.md', displayName: 'Data and Saves' },
+    { filename: '15.Node Functions and Events.md', displayName: 'Node Functions and Events' },
+    { filename: '16.Configuration Reference.md', displayName: 'Configuration Reference' },
+    { filename: '17.Packaging and Practical Notes.md', displayName: 'Packaging and Practical Notes' },
+  ],
+  zh_CN: [
+    { filename: '01.介绍.md', displayName: '介绍' },
+    { filename: '02.编辑器基础.md', displayName: '编辑器基础' },
+    { filename: '03.项目配置与素材.md', displayName: '项目配置与素材' },
+    { filename: '04.图块自动图块与地图.md', displayName: '图块自动图块与地图' },
+    { filename: '05.蓝图与角色.md', displayName: '蓝图与角色' },
+    { filename: '06.数据本地化节点与测试.md', displayName: '数据本地化节点与测试' },
+    { filename: '07.项目与运行时结构.md', displayName: '项目与运行时结构' },
+    { filename: '08.Engine核心类.md', displayName: 'Engine核心类' },
+    { filename: '09.场景.md', displayName: '场景' },
+    { filename: '10.地图与角色.md', displayName: '地图与角色' },
+    { filename: '11.UI与窗口.md', displayName: 'UI与窗口' },
+    { filename: '12.输入.md', displayName: '输入' },
+    { filename: '13.资源音频与效果.md', displayName: '资源音频与效果' },
+    { filename: '14.数据与存档.md', displayName: '数据与存档' },
+    { filename: '15.节点函数与事件.md', displayName: '节点函数与事件' },
+    { filename: '16.配置参考.md', displayName: '配置参考' },
+    { filename: '17.打包与实用注意.md', displayName: '打包与实用注意' },
+  ],
+}
 
 export type SelectedDoc =
   | { type: 'home' }
@@ -73,25 +110,7 @@ export default function LudorkSidebar({
   onSelect,
   onToggle,
 }: LudorkSidebarProps) {
-  const [docs, setDocs] = useState<Manifest | null>(null)
-
-  useEffect(() => {
-    let cancelled = false
-    fetch(MANIFEST_URL)
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`)
-        return res.json()
-      })
-      .then((json) => {
-        if (!cancelled) setDocs(json)
-      })
-      .catch((err) => {
-        if (!cancelled) console.error('Failed to load docs manifest:', err)
-      })
-    return () => { cancelled = true }
-  }, [])
-
-  const entries: DocEntry[] = docs?.[language] ?? []
+  const entries: DocEntry[] = useMemo(() => DOCS_MANIFEST[language] ?? [], [language])
 
   return (
     <Box

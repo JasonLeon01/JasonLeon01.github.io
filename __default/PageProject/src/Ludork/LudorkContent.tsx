@@ -32,7 +32,7 @@ export default function LudorkContent({ path, onNavigate }: LudorkContentProps) 
     setError(null)
     setMd(null)
 
-    fetch(`/${path}`)
+    fetch(`https://raw.githubusercontent.com/JasonLeon01/Ludork/main/${path.slice('Ludork/'.length)}`)
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         return res.text()
