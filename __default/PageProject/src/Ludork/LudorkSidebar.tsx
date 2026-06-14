@@ -61,7 +61,22 @@ function byNumericPrefix(a: string, b: string): number {
 }
 
 const GITHUB_CONTENTS_API = 'https://api.github.com/repos/JasonLeon01/Ludork/contents/docs'
+const JSDELIVR_FLAT_API = 'https://data.jsdelivr.com/v1/package/gh/JasonLeon01/Ludork@main/flat'
 const CACHE_PREFIX = 'ludork-docs-'
+const FETCH_TIMEOUT_MS = 10000
+
+type GitHubContentEntry = {
+  name: string
+  type: string
+}
+
+type JsDelivrFlatResponse = {
+  files?: JsDelivrFileEntry[]
+}
+
+type JsDelivrFileEntry = {
+  name: string
+}
 
 function loadCache(lang: LanguageKey): DocEntry[] | null {
   try {
@@ -75,6 +90,68 @@ function saveCache(lang: LanguageKey, docs: DocEntry[]): void {
   try {
     sessionStorage.setItem(CACHE_PREFIX + lang, JSON.stringify(docs))
   } catch { /* quota exceeded or unavailable */ }
+}
+
+async function fetchJson<T>(url: string): Promise<T> {
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS)
+
+  try {
+    const res = await fetch(url, {
+      cache: 'no-cache',
+      signal: controller.signal,
+    })
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    return await res.json() as T
+  } finally {
+    clearTimeout(timeout)
+  }
+}
+
+function docsFromFilenames(filenames: string[]): DocEntry[] {
+  const docs = filenames
+    .filter((filename) => filename.endsWith('.md') && !filename.includes('/'))
+    .map((filename) => ({ filename, displayName: displayName(filename) }))
+  docs.sort((a, b) => byNumericPrefix(a.filename, b.filename))
+  return docs
+}
+
+async function fetchJsDelivrDocsIndex(lang: LanguageKey): Promise<DocEntry[]> {
+  const json = await fetchJson<JsDelivrFlatResponse>(JSDELIVR_FLAT_API)
+  if (!json.files) throw new Error('Invalid jsDelivr file tree')
+
+  const prefix = `/docs/${lang}/`
+  const docs = docsFromFilenames(
+    json.files
+      .map((file) => file.name)
+      .filter((name) => name.startsWith(prefix))
+      .map((name) => name.slice(prefix.length)),
+  )
+
+  if (!docs.length) throw new Error(`No docs found for ${lang}`)
+  return docs
+}
+
+async function fetchGitHubDocsIndex(lang: LanguageKey): Promise<DocEntry[]> {
+  const res = await fetch(`${GITHUB_CONTENTS_API}/${lang}`, { cache: 'no-cache' })
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+
+  const json = await res.json() as GitHubContentEntry[]
+  return docsFromFilenames(
+    json
+      .filter((file) => file.type === 'file')
+      .map((file) => file.name),
+  )
+}
+
+async function fetchDocsIndex(lang: LanguageKey): Promise<DocEntry[]> {
+  try {
+    return await fetchJsDelivrDocsIndex(lang)
+  } catch (jsDelivrError) {
+    console.warn('Failed to fetch docs index from jsDelivr:', jsDelivrError)
+    return fetchGitHubDocsIndex(lang)
+  }
 }
 
 export type SelectedDoc =
@@ -100,32 +177,26 @@ export default function LudorkSidebar({
   useEffect(() => {
     let cancelled = false
 
-    // 1. Try sessionStorage cache first
-    const cached = loadCache(language)
-    if (cached) {
-      setEntries(cached)
-      return
-    }
+    async function loadDocs(): Promise<void> {
+      // Show a cached list immediately, then still refresh from the remote tree.
+      const cached = loadCache(language)
+      if (cached) {
+        if (!cancelled) setEntries(cached)
+      } else if (!cancelled) {
+        setEntries([])
+      }
 
-    // 2. Fetch from GitHub API
-    setEntries([])
-    fetch(`${GITHUB_CONTENTS_API}/${language}`)
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`)
-        return res.json()
-      })
-      .then((json: { name: string; type: string }[]) => {
+      try {
+        const docs = await fetchDocsIndex(language)
         if (cancelled) return
-        const docs: DocEntry[] = json
-          .filter((f) => f.type === 'file' && f.name.endsWith('.md'))
-          .map((f) => ({ filename: f.name, displayName: displayName(f.name) }))
-        docs.sort((a, b) => byNumericPrefix(a.filename, b.filename))
         saveCache(language, docs)
         setEntries(docs)
-      })
-      .catch((err) => {
+      } catch (err) {
         if (!cancelled) console.error('Failed to fetch docs index:', err)
-      })
+      }
+    }
+
+    void loadDocs()
     return () => { cancelled = true }
   }, [language])
 

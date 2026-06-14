@@ -1,4 +1,4 @@
-import { copyFileSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs'
+import { copyFileSync, existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 const dist = 'dist'
@@ -9,6 +9,12 @@ copyFileSync(`${dist}/index.html`, `${dist}/404.html`)
 // Serve the React app at /Ludork/ instead of Jekyll-rendered README.md
 mkdirSync(`${dist}/Ludork`, { recursive: true })
 copyFileSync(`${dist}/index.html`, `${dist}/Ludork/index.html`)
+for (const icon of ['favicon.ico', 'icons.ico']) {
+  const from = join(dist, icon)
+  if (existsSync(from)) {
+    copyFileSync(from, join(dist, 'Ludork', icon))
+  }
+}
 
 // Disable Jekyll so static index.html and assets are served as-is
 writeFileSync(`${dist}/.nojekyll`, '')
