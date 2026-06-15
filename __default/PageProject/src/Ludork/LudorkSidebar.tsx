@@ -43,6 +43,10 @@ export type DocEntry = {
   displayName: string
 }
 
+type DocTreeItem =
+  | { type: 'folder'; path: string; displayName: string; children: DocTreeItem[] }
+  | { type: 'doc'; entry: DocEntry }
+
 export type LanguageKey = 'en_GB' | 'zh_CN'
 
 const HOME_LABEL: Record<LanguageKey, string> = {
@@ -62,12 +66,24 @@ function byNumericPrefix(a: string, b: string): number {
 
 const GITHUB_CONTENTS_API = 'https://api.github.com/repos/JasonLeon01/Ludork/contents/docs'
 const JSDELIVR_FLAT_API = 'https://data.jsdelivr.com/v1/package/gh/JasonLeon01/Ludork@main/flat'
-const CACHE_PREFIX = 'ludork-docs-'
+const GITHUB_GIT_TREES_API = 'https://api.github.com/repos/JasonLeon01/Ludork/git/trees/main?recursive=1'
+const CACHE_PREFIX = 'ludork-docs-v3-'
 const FETCH_TIMEOUT_MS = 10000
 
 type GitHubContentEntry = {
   name: string
   type: string
+  url?: string
+}
+
+type GitHubTreeEntry = {
+  path: string
+  type: 'blob' | 'tree' | string
+}
+
+type GitHubTreeResponse = {
+  tree?: GitHubTreeEntry[]
+  truncated?: boolean
 }
 
 type JsDelivrFlatResponse = {
@@ -78,15 +94,15 @@ type JsDelivrFileEntry = {
   name: string
 }
 
-function loadCache(lang: LanguageKey): DocEntry[] | null {
+function loadCache(lang: LanguageKey): DocTreeItem[] | null {
   try {
     const raw = sessionStorage.getItem(CACHE_PREFIX + lang)
-    if (raw) return JSON.parse(raw) as DocEntry[]
+    if (raw) return JSON.parse(raw) as DocTreeItem[]
   } catch { /* sessionStorage unavailable */ }
   return null
 }
 
-function saveCache(lang: LanguageKey, docs: DocEntry[]): void {
+function saveCache(lang: LanguageKey, docs: DocTreeItem[]): void {
   try {
     sessionStorage.setItem(CACHE_PREFIX + lang, JSON.stringify(docs))
   } catch { /* quota exceeded or unavailable */ }
@@ -109,15 +125,90 @@ async function fetchJson<T>(url: string): Promise<T> {
   }
 }
 
-function docsFromFilenames(filenames: string[]): DocEntry[] {
-  const docs = filenames
-    .filter((filename) => filename.endsWith('.md') && !filename.includes('/'))
-    .map((filename) => ({ filename, displayName: displayName(filename) }))
-  docs.sort((a, b) => byNumericPrefix(a.filename, b.filename))
+function normalizeDocPath(filename: string): string {
+  return filename.replace(/\\/g, '/').replace(/^\/+/, '')
+}
+
+function compareTreeItems(a: DocTreeItem, b: DocTreeItem): number {
+  const aName = a.type === 'folder' ? a.path.split('/').at(-1)! : a.entry.filename.split('/').at(-1)!
+  const bName = b.type === 'folder' ? b.path.split('/').at(-1)! : b.entry.filename.split('/').at(-1)!
+  const prefixDiff = byNumericPrefix(aName, bName)
+  if (prefixDiff !== 0) return prefixDiff
+
+  const aLabel = a.type === 'folder' ? a.displayName : a.entry.displayName
+  const bLabel = b.type === 'folder' ? b.displayName : b.entry.displayName
+  return aLabel.localeCompare(bLabel, undefined, { numeric: true, sensitivity: 'base' })
+}
+
+function sortTreeItems(items: DocTreeItem[]): void {
+  items.sort(compareTreeItems)
+  items.forEach((item) => {
+    if (item.type === 'folder') sortTreeItems(item.children)
+  })
+}
+
+function docsFromFilenames(filenames: string[]): DocTreeItem[] {
+  const root: DocTreeItem[] = []
+  const folders = new Map<string, Extract<DocTreeItem, { type: 'folder' }>>()
+
+  filenames
+    .map(normalizeDocPath)
+    .filter((filename) => filename.endsWith('.md') && !filename.includes('//'))
+    .forEach((filename) => {
+      const parts = filename.split('/').filter(Boolean)
+      if (!parts.length) return
+
+      let siblings = root
+      let folderPath = ''
+
+      parts.slice(0, -1).forEach((folderName) => {
+        folderPath = folderPath ? `${folderPath}/${folderName}` : folderName
+        let folder = folders.get(folderPath)
+        if (!folder) {
+          folder = {
+            type: 'folder',
+            path: folderPath,
+            displayName: displayName(folderName),
+            children: [],
+          }
+          folders.set(folderPath, folder)
+          siblings.push(folder)
+        }
+        siblings = folder.children
+      })
+
+      const leafName = parts.at(-1)!
+      siblings.push({
+        type: 'doc',
+        entry: {
+          filename,
+          displayName: displayName(leafName),
+        },
+      })
+    })
+
+  sortTreeItems(root)
+  return root
+}
+
+/** Primary: GitHub Git Trees API — one request, recursive, always live. */
+async function fetchGitTreesDocsIndex(lang: LanguageKey): Promise<DocTreeItem[]> {
+  const json = await fetchJson<GitHubTreeResponse>(GITHUB_GIT_TREES_API)
+  if (!json.tree) throw new Error('Invalid GitHub git trees response')
+
+  const prefix = `docs/${lang}/`
+  const docs = docsFromFilenames(
+    json.tree
+      .filter((entry) => entry.type === 'blob' && entry.path.startsWith(prefix))
+      .map((entry) => entry.path.slice(prefix.length)),
+  )
+
+  if (!docs.length) throw new Error(`No docs found for ${lang}`)
   return docs
 }
 
-async function fetchJsDelivrDocsIndex(lang: LanguageKey): Promise<DocEntry[]> {
+/** Fallback 1: jsDelivr flat file list (CDN-cached, may lag behind GitHub). */
+async function fetchJsDelivrDocsIndex(lang: LanguageKey): Promise<DocTreeItem[]> {
   const json = await fetchJson<JsDelivrFlatResponse>(JSDELIVR_FLAT_API)
   if (!json.files) throw new Error('Invalid jsDelivr file tree')
 
@@ -133,24 +224,35 @@ async function fetchJsDelivrDocsIndex(lang: LanguageKey): Promise<DocEntry[]> {
   return docs
 }
 
-async function fetchGitHubDocsIndex(lang: LanguageKey): Promise<DocEntry[]> {
-  const res = await fetch(`${GITHUB_CONTENTS_API}/${lang}`, { cache: 'no-cache' })
-  if (!res.ok) throw new Error(`HTTP ${res.status}`)
-
-  const json = await res.json() as GitHubContentEntry[]
-  return docsFromFilenames(
-    json
-      .filter((file) => file.type === 'file')
-      .map((file) => file.name),
-  )
+/** Fallback 2: GitHub Contents API — recursive walk, multiple requests. */
+async function fetchGitHubDocPaths(url: string, basePath = ''): Promise<string[]> {
+  const json = await fetchJson<GitHubContentEntry[]>(url)
+  const paths = await Promise.all(json.map(async (file) => {
+    if (file.type === 'file') return [`${basePath}${file.name}`]
+    if (file.type === 'dir' && file.url) {
+      const nestedPaths = await fetchGitHubDocPaths(file.url, `${basePath}${file.name}/`)
+      return nestedPaths
+    }
+    return []
+  }))
+  return paths.flat()
 }
 
-async function fetchDocsIndex(lang: LanguageKey): Promise<DocEntry[]> {
+async function fetchGitHubDocsIndex(lang: LanguageKey): Promise<DocTreeItem[]> {
+  return docsFromFilenames(await fetchGitHubDocPaths(`${GITHUB_CONTENTS_API}/${lang}`))
+}
+
+async function fetchDocsIndex(lang: LanguageKey): Promise<DocTreeItem[]> {
   try {
-    return await fetchJsDelivrDocsIndex(lang)
-  } catch (jsDelivrError) {
-    console.warn('Failed to fetch docs index from jsDelivr:', jsDelivrError)
-    return fetchGitHubDocsIndex(lang)
+    return await fetchGitTreesDocsIndex(lang)
+  } catch (gitTreesError) {
+    console.warn('Failed to fetch docs index from GitHub git trees API:', gitTreesError)
+    try {
+      return await fetchJsDelivrDocsIndex(lang)
+    } catch (jsDelivrError) {
+      console.warn('Failed to fetch docs index from jsDelivr:', jsDelivrError)
+      return fetchGitHubDocsIndex(lang)
+    }
   }
 }
 
@@ -172,7 +274,7 @@ export default function LudorkSidebar({
   onSelect,
   onToggle,
 }: LudorkSidebarProps) {
-  const [entries, setEntries] = useState<DocEntry[]>([])
+  const [entries, setEntries] = useState<DocTreeItem[]>([])
 
   useEffect(() => {
     let cancelled = false
@@ -241,27 +343,68 @@ export default function LudorkSidebar({
         </ListItemButton>
 
         {/* Doc entries */}
-        {entries.map((entry) => {
-          const isSelected =
-            selected.type === 'doc' &&
-            selected.lang === language &&
-            selected.entry.filename === entry.filename
-
-          return (
-            <ListItemButton
-              key={entry.filename}
-              selected={isSelected}
-              onClick={() => onSelect({ type: 'doc', lang: language, entry })}
-              sx={{ pl: 4 }}
-            >
-              <ListItemText
-                primary={entry.displayName}
-                slotProps={{ primary: { sx: { fontSize: 14, fontWeight: isSelected ? 600 : 400 } } }}
-              />
-            </ListItemButton>
-          )
-        })}
+        {entries.map((item) => renderTreeItem(item, language, selected, onSelect))}
       </List>
     </Box>
+  )
+}
+
+function renderTreeItem(
+  item: DocTreeItem,
+  language: LanguageKey,
+  selected: SelectedDoc,
+  onSelect: (doc: SelectedDoc) => void,
+  depth = 0,
+) {
+  if (item.type === 'folder') {
+    return (
+      <Box key={`folder-${item.path}`}>
+        <Typography
+          variant="caption"
+          sx={{
+            display: 'block',
+            pl: 2 + depth * 2,
+            pr: 2,
+            pt: depth === 0 ? 1.25 : 0.75,
+            pb: 0.25,
+            color: 'text.secondary',
+            fontWeight: 700,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+          }}
+        >
+          {item.displayName}
+        </Typography>
+        {item.children.map((child) => renderTreeItem(child, language, selected, onSelect, depth + 1))}
+      </Box>
+    )
+  }
+
+  const isSelected =
+    selected.type === 'doc' &&
+    selected.lang === language &&
+    selected.entry.filename === item.entry.filename
+
+  return (
+    <ListItemButton
+      key={item.entry.filename}
+      selected={isSelected}
+      onClick={() => onSelect({ type: 'doc', lang: language, entry: item.entry })}
+      sx={{ pl: 4 + depth * 2 }}
+    >
+      <ListItemText
+        primary={item.entry.displayName}
+        slotProps={{
+          primary: {
+            sx: {
+              fontSize: 14,
+              fontWeight: isSelected ? 600 : 400,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            },
+          },
+        }}
+      />
+    </ListItemButton>
   )
 }
