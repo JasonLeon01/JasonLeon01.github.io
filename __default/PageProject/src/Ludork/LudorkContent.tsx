@@ -16,39 +16,47 @@ function dirOf(docPath: string): string {
   return i === -1 ? '' : docPath.slice(0, i + 1)
 }
 
+function encodeRepoPath(repoPath: string): string {
+  return repoPath.split('/').map(encodeURIComponent).join('/')
+}
+
 export default function LudorkContent({ path, onNavigate }: LudorkContentProps) {
   const [md, setMd] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!path) {
-      setMd(null)
-      return
-    }
-
     let cancelled = false
-    setLoading(true)
-    setError(null)
-    setMd(null)
 
-    fetch(`https://raw.githubusercontent.com/JasonLeon01/Ludork/main/${path.slice('Ludork/'.length)}`)
-      .then((res) => {
+    async function loadMarkdown(): Promise<void> {
+      if (!path) {
+        setMd(null)
+        return
+      }
+
+      setLoading(true)
+      setError(null)
+      setMd(null)
+
+      const repoPath = path.slice('Ludork/'.length)
+
+      try {
+        const res = await fetch(`https://raw.githubusercontent.com/JasonLeon01/Ludork/main/${encodeRepoPath(repoPath)}`)
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
-        return res.text()
-      })
-      .then((text) => {
+        const text = await res.text()
         if (!cancelled) {
           setMd(text)
           setLoading(false)
         }
-      })
-      .catch((err) => {
+      } catch (err) {
         if (!cancelled) {
-          setError(err.message)
+          setError(err instanceof Error ? err.message : String(err))
           setLoading(false)
         }
-      })
+      }
+    }
+
+    void loadMarkdown()
 
     return () => {
       cancelled = true
