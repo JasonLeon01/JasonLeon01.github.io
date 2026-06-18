@@ -10,6 +10,9 @@ type LudorkContentProps = {
   onNavigate?: (targetPath: string) => void
 }
 
+const JSDELIVR_CDN_BASE = 'https://cdn.jsdelivr.net/gh/JasonLeon01/Ludork@main'
+const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/JasonLeon01/Ludork/main'
+
 /** Derive the directory prefix for the current document (e.g. "Ludork/" from "Ludork/README.md"). */
 function dirOf(docPath: string): string {
   const i = docPath.lastIndexOf('/')
@@ -18,6 +21,16 @@ function dirOf(docPath: string): string {
 
 function encodeRepoPath(repoPath: string): string {
   return repoPath.split('/').map(encodeURIComponent).join('/')
+}
+
+async function fetchMarkdown(repoPath: string): Promise<string> {
+  const encodedRepoPath = encodeRepoPath(repoPath)
+  const cdnRes = await fetch(`${JSDELIVR_CDN_BASE}/${encodedRepoPath}`)
+  if (cdnRes.ok) return cdnRes.text()
+
+  const rawRes = await fetch(`${GITHUB_RAW_BASE}/${encodedRepoPath}`)
+  if (!rawRes.ok) throw new Error(`HTTP ${rawRes.status}`)
+  return rawRes.text()
 }
 
 export default function LudorkContent({ path, onNavigate }: LudorkContentProps) {
@@ -41,9 +54,7 @@ export default function LudorkContent({ path, onNavigate }: LudorkContentProps) 
       const repoPath = path.slice('Ludork/'.length)
 
       try {
-        const res = await fetch(`https://raw.githubusercontent.com/JasonLeon01/Ludork/main/${encodeRepoPath(repoPath)}`)
-        if (!res.ok) throw new Error(`HTTP ${res.status}`)
-        const text = await res.text()
+        const text = await fetchMarkdown(repoPath)
         if (!cancelled) {
           setMd(text)
           setLoading(false)

@@ -64,25 +64,16 @@ function byNumericPrefix(a: string, b: string): number {
   return (parseInt(a, 10) || 0) - (parseInt(b, 10) || 0)
 }
 
-const GITHUB_CONTENTS_API = 'https://api.github.com/repos/JasonLeon01/Ludork/contents/docs'
-const GITHUB_GIT_TREES_API = 'https://api.github.com/repos/JasonLeon01/Ludork/git/trees/main?recursive=1'
-const CACHE_PREFIX = 'ludork-docs-v3-'
+const JSDELIVR_FLAT_API = 'https://data.jsdelivr.com/v1/package/gh/JasonLeon01/Ludork@main/flat'
+const CACHE_PREFIX = 'ludork-docs-v4-'
 const FETCH_TIMEOUT_MS = 10000
 
-type GitHubContentEntry = {
+type JsDelivrFlatEntry = {
   name: string
-  type: string
-  url?: string
 }
 
-type GitHubTreeEntry = {
-  path: string
-  type: 'blob' | 'tree' | string
-}
-
-type GitHubTreeResponse = {
-  tree?: GitHubTreeEntry[]
-  truncated?: boolean
+type JsDelivrFlatResponse = {
+  files?: JsDelivrFlatEntry[]
 }
 
 function loadCache(lang: LanguageKey): DocTreeItem[] | null {
@@ -182,55 +173,20 @@ function docsFromFilenames(filenames: string[]): DocTreeItem[] {
   return root
 }
 
-/** GitHub Git Trees API fallback: one request, recursive, but unusable if truncated. */
-async function fetchGitTreesDocsIndex(lang: LanguageKey): Promise<DocTreeItem[]> {
-  const json = await fetchJson<GitHubTreeResponse>(GITHUB_GIT_TREES_API)
-  if (!json.tree) throw new Error('Invalid GitHub git trees response')
-  if (json.truncated) throw new Error('GitHub git trees response was truncated')
+async function fetchDocsIndex(lang: LanguageKey): Promise<DocTreeItem[]> {
+  const json = await fetchJson<JsDelivrFlatResponse>(JSDELIVR_FLAT_API)
+  if (!Array.isArray(json.files)) throw new Error('Invalid jsDelivr flat tree response')
 
   const prefix = `docs/${lang}/`
   const docs = docsFromFilenames(
-    json.tree
-      .filter((entry) => entry.type === 'blob' && entry.path.startsWith(prefix))
-      .map((entry) => entry.path.slice(prefix.length)),
+    json.files
+      .map((entry) => normalizeDocPath(entry.name))
+      .filter((name) => name.startsWith(prefix))
+      .map((name) => name.slice(prefix.length)),
   )
 
   if (!docs.length) throw new Error(`No docs found for ${lang}`)
   return docs
-}
-
-/** Primary: GitHub Contents API recursive walk, following directory URLs from GitHub. */
-async function fetchGitHubDocPaths(url: string, basePath = ''): Promise<string[]> {
-  const json = await fetchJson<GitHubContentEntry[]>(url)
-  const paths = await Promise.all(json.map(async (file) => {
-    if (file.type === 'file') return [`${basePath}${file.name}`]
-    if (file.type === 'dir' && file.url) {
-      const nestedPaths = await fetchGitHubDocPaths(file.url, `${basePath}${file.name}/`)
-      return nestedPaths
-    }
-    return []
-  }))
-  return paths.flat()
-}
-
-async function fetchGitHubDocsIndex(lang: LanguageKey): Promise<DocTreeItem[]> {
-  const docs = docsFromFilenames(await fetchGitHubDocPaths(`${GITHUB_CONTENTS_API}/${lang}`))
-  if (!docs.length) throw new Error(`No docs found for ${lang}`)
-  return docs
-}
-
-async function fetchDocsIndex(lang: LanguageKey): Promise<DocTreeItem[]> {
-  try {
-    return await fetchGitHubDocsIndex(lang)
-  } catch (contentsError) {
-    console.warn('Failed to fetch docs index from GitHub contents API:', contentsError)
-    try {
-      return await fetchGitTreesDocsIndex(lang)
-    } catch (gitTreesError) {
-      console.warn('Failed to fetch docs index from GitHub git trees API:', gitTreesError)
-      throw contentsError
-    }
-  }
 }
 
 export type SelectedDoc =
