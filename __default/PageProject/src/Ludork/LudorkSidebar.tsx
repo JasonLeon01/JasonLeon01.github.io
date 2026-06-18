@@ -7,52 +7,20 @@ import {
   ListItemText,
   Typography,
 } from '@mui/material'
-/** Inline 20px home icon to avoid adding @mui/icons-material */
-/** Inline chevron-left icon for collapse button */
-function ChevronLeftIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M15 18l-6-6 6-6" />
-    </svg>
-  )
-}
+import { docKeyFromFilename } from './ludorkDocKey'
+import { ChevronLeftIcon, HomeIcon } from './LudorkIcon'
+import { LUDORK_LANGUAGES, type LanguageKey } from './ludorkLanguages'
 
-/** Inline 20px home icon to avoid adding @mui/icons-material */
-function HomeIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z" />
-      <path d="M9 21V12h6v9" />
-    </svg>
-  )
-}
-
-/** Inline hamburger menu icon for expand button */
-export function MenuIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="3" y1="6" x2="21" y2="6" />
-      <line x1="3" y1="12" x2="21" y2="12" />
-      <line x1="3" y1="18" x2="21" y2="18" />
-    </svg>
-  )
-}
+export type { LanguageKey } from './ludorkLanguages'
 
 export type DocEntry = {
   filename: string
   displayName: string
 }
 
-type DocTreeItem =
+export type DocTreeItem =
   | { type: 'folder'; path: string; displayName: string; children: DocTreeItem[] }
   | { type: 'doc'; entry: DocEntry }
-
-export type LanguageKey = 'en_GB' | 'zh_CN'
-
-const HOME_LABEL: Record<LanguageKey, string> = {
-  en_GB: 'Home',
-  zh_CN: '开始界面',
-}
 
 /** Strip leading "NN." prefix and ".md" suffix → display name. */
 function displayName(filename: string): string {
@@ -213,7 +181,7 @@ async function fetchGitHubTreeDocsIndex(lang: LanguageKey): Promise<DocTreeItem[
   return docs
 }
 
-async function fetchDocsIndex(lang: LanguageKey): Promise<DocTreeItem[]> {
+export async function fetchDocsIndex(lang: LanguageKey): Promise<DocTreeItem[]> {
   try {
     return await fetchGitHubTreeDocsIndex(lang)
   } catch (gitTreeError) {
@@ -227,7 +195,7 @@ async function fetchDocsIndex(lang: LanguageKey): Promise<DocTreeItem[]> {
 
 export type SelectedDoc =
   | { type: 'home' }
-  | { type: 'doc'; lang: LanguageKey; entry: DocEntry }
+  | { type: 'doc'; lang: LanguageKey; docKey: string; entry: DocEntry }
 
 type LudorkSidebarProps = {
   language: LanguageKey
@@ -306,7 +274,7 @@ export default function LudorkSidebar({
         >
           <HomeIcon />
           <ListItemText
-            primary={HOME_LABEL[language]}
+            primary={LUDORK_LANGUAGES[language].homeLabel}
             slotProps={{ primary: { sx: { fontSize: 14, fontWeight: selected.type === 'home' ? 600 : 400 } } }}
           />
         </ListItemButton>
@@ -349,16 +317,17 @@ function renderTreeItem(
     )
   }
 
+  const docKey = docKeyFromFilename(item.entry.filename)
   const isSelected =
     selected.type === 'doc' &&
     selected.lang === language &&
-    selected.entry.filename === item.entry.filename
+    selected.docKey === docKey
 
   return (
     <ListItemButton
       key={item.entry.filename}
       selected={isSelected}
-      onClick={() => onSelect({ type: 'doc', lang: language, entry: item.entry })}
+      onClick={() => onSelect({ type: 'doc', lang: language, docKey, entry: item.entry })}
       sx={{ pl: 4 + depth * 2 }}
     >
       <ListItemText

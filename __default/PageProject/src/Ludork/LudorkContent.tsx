@@ -105,7 +105,7 @@ export default function LudorkContent({ path, onNavigate }: LudorkContentProps) 
   }
 
   return (
-    <Box className="ludork-markdown" sx={{ px: { xs: 2, md: 4 }, py: 3, maxWidth: 900 }}>
+    <Box className="ludork-markdown" sx={{ px: { xs: 2, md: 4 }, py: 3, width: '100%', boxSizing: 'border-box' }}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{

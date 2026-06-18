@@ -23,7 +23,7 @@ export default function SelectedProjectsPanel() {
                     en: 'Ludork',
                     zh: 'Ludork',
                 },
-                href: 'https://github.com/JasonLeon01/Ludork',
+                href: 'https://jasonleon01.github.io/Ludork/',
                 timeRange: {
                     en: '2025-09 ~ Present',
                     zh: '2025-09 ~ 至今',
