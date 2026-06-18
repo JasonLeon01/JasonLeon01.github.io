@@ -64,8 +64,9 @@ function byNumericPrefix(a: string, b: string): number {
   return (parseInt(a, 10) || 0) - (parseInt(b, 10) || 0)
 }
 
-const JSDELIVR_FLAT_API = 'https://data.jsdelivr.com/v1/package/gh/JasonLeon01/Ludork@main/flat'
-const CACHE_PREFIX = 'ludork-docs-v4-'
+const JSDELIVR_FLAT_API = 'https://data.jsdelivr.com/v1/packages/gh/JasonLeon01/Ludork@main?structure=flat'
+const GITHUB_GIT_TREES_API = 'https://api.github.com/repos/JasonLeon01/Ludork/git/trees/main?recursive=1'
+const CACHE_PREFIX = 'ludork-docs-v6-'
 const FETCH_TIMEOUT_MS = 10000
 
 type JsDelivrFlatEntry = {
@@ -74,6 +75,16 @@ type JsDelivrFlatEntry = {
 
 type JsDelivrFlatResponse = {
   files?: JsDelivrFlatEntry[]
+}
+
+type GitHubTreeEntry = {
+  path: string
+  type: 'blob' | 'tree' | string
+}
+
+type GitHubTreeResponse = {
+  tree?: GitHubTreeEntry[]
+  truncated?: boolean
 }
 
 function loadCache(lang: LanguageKey): DocTreeItem[] | null {
@@ -95,10 +106,7 @@ async function fetchJson<T>(url: string): Promise<T> {
   const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS)
 
   try {
-    const res = await fetch(url, {
-      cache: 'no-cache',
-      signal: controller.signal,
-    })
+    const res = await fetch(url, { signal: controller.signal })
 
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
     return await res.json() as T
@@ -173,7 +181,7 @@ function docsFromFilenames(filenames: string[]): DocTreeItem[] {
   return root
 }
 
-async function fetchDocsIndex(lang: LanguageKey): Promise<DocTreeItem[]> {
+async function fetchJsDelivrDocsIndex(lang: LanguageKey): Promise<DocTreeItem[]> {
   const json = await fetchJson<JsDelivrFlatResponse>(JSDELIVR_FLAT_API)
   if (!Array.isArray(json.files)) throw new Error('Invalid jsDelivr flat tree response')
 
@@ -187,6 +195,34 @@ async function fetchDocsIndex(lang: LanguageKey): Promise<DocTreeItem[]> {
 
   if (!docs.length) throw new Error(`No docs found for ${lang}`)
   return docs
+}
+
+async function fetchGitHubTreeDocsIndex(lang: LanguageKey): Promise<DocTreeItem[]> {
+  const json = await fetchJson<GitHubTreeResponse>(GITHUB_GIT_TREES_API)
+  if (!Array.isArray(json.tree)) throw new Error('Invalid GitHub git tree response')
+  if (json.truncated) throw new Error('GitHub git tree response was truncated')
+
+  const prefix = `docs/${lang}/`
+  const docs = docsFromFilenames(
+    json.tree
+      .filter((entry) => entry.type === 'blob' && normalizeDocPath(entry.path).startsWith(prefix))
+      .map((entry) => normalizeDocPath(entry.path).slice(prefix.length)),
+  )
+
+  if (!docs.length) throw new Error(`No docs found for ${lang}`)
+  return docs
+}
+
+async function fetchDocsIndex(lang: LanguageKey): Promise<DocTreeItem[]> {
+  try {
+    return await fetchGitHubTreeDocsIndex(lang)
+  } catch (gitTreeError) {
+    try {
+      return await fetchJsDelivrDocsIndex(lang)
+    } catch {
+      throw gitTreeError
+    }
+  }
 }
 
 export type SelectedDoc =

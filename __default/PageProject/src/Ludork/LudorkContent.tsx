@@ -23,6 +23,11 @@ function encodeRepoPath(repoPath: string): string {
   return repoPath.split('/').map(encodeURIComponent).join('/')
 }
 
+function resolveRepoPath(currentPath: string, href: string): string {
+  const resolved = new URL(href, `https://ludork.local/${dirOf(currentPath)}`)
+  return resolved.pathname.replace(/^\/+/, '')
+}
+
 async function fetchMarkdown(repoPath: string): Promise<string> {
   const encodedRepoPath = encodeRepoPath(repoPath)
   const cdnRes = await fetch(`${JSDELIVR_CDN_BASE}/${encodedRepoPath}`)
@@ -107,7 +112,7 @@ export default function LudorkContent({ path, onNavigate }: LudorkContentProps) 
           a({ href, children, ...rest }) {
             // Resolve relative links against the current doc's directory
             if (href && !/^(https?:|\/|#|mailto:)/.test(href) && path) {
-              const resolved = dirOf(path) + href
+              const resolved = resolveRepoPath(path, href)
               return (
                 <a
                   href={`/${resolved}`}
