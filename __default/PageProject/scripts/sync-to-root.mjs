@@ -1,4 +1,4 @@
-import { copyFileSync, cpSync, existsSync, mkdirSync, readdirSync } from 'node:fs'
+import { copyFileSync, existsSync, mkdirSync, readdirSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -27,6 +27,5 @@ copyFileSync(join(dist, 'index.html'), join(root, 'index.html'))
 copyFileSync(join(dist, '404.html'), join(root, '404.html'))
 copyFileSync(join(dist, '.nojekyll'), join(root, '.nojekyll'))
 copyDir(join(dist, 'assets'), join(root, 'assets'))
-copyDir(join(dist, 'Ludork'), join(root, 'Ludork'))
 
 console.log(`Synced dist/ -> ${root}`)
