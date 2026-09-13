@@ -29,29 +29,63 @@ export default function SelectedProjectsPanel() {
                     zh: '2025-09 ~ 至今',
                 },
                 summary: {
-                    en: 'A tilemap-based RPG engine with an editor/runtime workflow.',
-                    zh: '一款基于瓦片地图的 RPG 引擎，包含编辑器/运行时一体化工作流。',
+                    en: 'A game editor and native C++20 runtime for creating 2D role-playing games.',
+                    zh: '面向 2D 角色扮演游戏创作的游戏编辑器与原生 C++20 运行时。',
                 },
                 details: [
                     {
-                        en: 'Python-first engine built on PyQt5 and SFML3 with a focus on rapid iteration.',
-                        zh: '基于 PyQt5 和 SFML3 的 Python 绑定的 Tilemap 游戏引擎；',
+                        en: 'Unified visual authoring for projects, maps, tilesets, actors, animations, curves, data, text configuration, and declarative UI.',
+                        zh: '在统一编辑器内管理工程、地图、图块集、Actor、动画、曲线、数据、文本配置与声明式 UI；',
                     },
                     {
-                        en: 'Core features inspired by RPG Maker, plus extensible gameplay systems.',
-                        zh: '支持类似 RPG Maker 的主要功能；',
+                        en: 'Blueprint graphs and Lua scripting on a C++20 runtime built with LuaSF and SFML.',
+                        zh: '通过 Blueprint 图与 Lua 脚本编写玩法，运行时基于 LuaSF 与 SFML；',
                     },
                     {
-                        en: 'High-performance particle system and voxel-style map support.',
-                        zh: '支持高性能粒子系统和瓦片地图；',
+                        en: 'GPU particle effects for actors and UI, plus world lighting with material-aware surfaces and shadows.',
+                        zh: '为 Actor 与 UI 提供 GPU 粒子效果，并支持基于材质表面的世界光影与阴影；',
                     },
                     {
-                        en: 'Material-property-based lighting and screen-space reflection effects.',
-                        zh: '支持基于材质属性的光影效果和镜面反射效果；',
+                        en: 'C# 13 editor plug-ins, plus Standalone and C++ Source templates (optional FFmpeg).',
+                        zh: '支持 C# 13 编辑器插件，并提供 Standalone 与 C++ Source 工程模板（可选 FFmpeg）；',
                     },
                     {
-                        en: 'Editor and runtime both support UE-style blueprint node graph editing and execution.',
-                        zh: 'Editor 和 Runtime 层面均支持类UE蓝图的节点编辑和运行功能；',
+                        en: 'Editor on Windows x64 and Apple Silicon macOS; games also package to iOS, HarmonyOS, and Android.',
+                        zh: '编辑器支持 Windows x64 与 Apple Silicon macOS，游戏还可打包到 iOS、HarmonyOS 与 Android；',
+                    },
+                ],
+            },
+            {
+                key: 'luasf-autogenerator',
+                name: {
+                    en: 'LuaSF-AutoGenerator',
+                    zh: 'LuaSF-AutoGenerator',
+                },
+                href: 'https://github.com/JasonLeon01/LuaSF-AutoGenerator',
+                timeRange: {
+                    en: '2026-06 ~ Present',
+                    zh: '2026-06 ~ 至今',
+                },
+                summary: {
+                    en: 'An automated binding generator that exposes SFML to Lua through sol2.',
+                    zh: '通过 sol2 将 SFML 暴露给 Lua 的自动化绑定生成器。',
+                },
+                details: [
+                    {
+                        en: 'Uses Clang AST to extract the SFML API and generate sol2 bindings, CMake files, and LuaLS stubs.',
+                        zh: '使用 Clang AST 扫描 SFML API，生成 sol2 绑定、CMake 工程与 LuaLS stub；',
+                    },
+                    {
+                        en: 'Produces a CMake LuaSF module that can be consumed from generated source or from collected embedded/extension packages.',
+                        zh: '生成基于 CMake 的 LuaSF 模块，支持源码接入或收集后的嵌入式/扩展包接入；',
+                    },
+                    {
+                        en: 'Embedded consumers link LuaSF::LuaSF; a plain Lua runtime can load the extension with require("LuaSF").',
+                        zh: '嵌入式使用方链接 LuaSF::LuaSF，普通 Lua 运行时可通过 require("LuaSF") 加载扩展；',
+                    },
+                    {
+                        en: 'Bridges std::function callbacks in a type-driven way, including the SoundSource.EffectProcessor audio-thread contract.',
+                        zh: '按类型自动桥接 std::function 回调，并覆盖 SoundSource.EffectProcessor 的音频线程契约；',
                     },
                 ],
             },

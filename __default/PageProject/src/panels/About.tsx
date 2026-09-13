@@ -8,13 +8,13 @@ export default function AboutPanel() {
   const paragraphsByLanguage: Record<Language, string[]> = {
     en: [
       `I am a Game Development Engineer currently at Tencent LightSpeed Studios, PUBGM Project Group. My work focuses on game client development, graphics rendering, and the construction and optimization of high-performance system toolchains.`,
-      `My technical expertise includes experience with Unreal Engine, C++, and Python, with a particular focus on animation systems, shader optimization, and automation tools.`,
-      `Beyond my professional role, I am an active indie developer and open-source contributor. I am currently developing Ludork, a 2D RPG engine built on PyQt5 and SFML3, and PySF-AutoGenerator, a tool for automating Python bindings using Clang AST. I am committed to building robust systems that solve real-world development challenges and push the boundaries of immersive player experiences.`,
+      `My technical expertise includes experience with Unreal Engine, C++, Lua, C#, and Python, with a particular focus on animation systems, shader optimization, and automation tools.`,
+      `Beyond my professional role, I am an active indie developer and open-source contributor. I am currently developing Ludork, a 2D RPG editor and C++20 runtime built on LuaSF and SFML, together with LuaSF-AutoGenerator and PySF-AutoGenerator, Clang AST tools that generate SFML bindings for Lua/sol2 and Python/pybind11. I am committed to building robust systems that solve real-world development challenges and push the boundaries of immersive player experiences.`,
     ],
     zh: [
       `我目前在腾讯光子工作室群 PUBGM 项目组担任游戏开发工程师。我的工作包括游戏客户端开发、图形渲染以及高性能系统工具链的构建与优化。`,
-      `我的技术方向涵盖 Unreal Engine、C++ 与 Python，长期关注动画系统、着色器优化以及自动化工具研发。`,
-      `除本职工作外，我也是一名独立开发者。目前我正在开发基于 PyQt5 与 SFML3 的 2D RPG 引擎 Ludork以及基于 Clang AST 的 Python 绑定自动生成工具 PySF-AutoGenerator。我希望通过构建可靠、可复用的系统来解决真实开发问题，并持续拓展沉浸式体验的边界。`,
+      `我的技术方向涵盖 Unreal Engine、C++、Lua、C# 与 Python，长期关注动画系统、着色器优化以及自动化工具研发。`,
+      `除本职工作外，我也是一名独立开发者。目前我正在开发基于 LuaSF 与 SFML 的 2D RPG 编辑器与 C++20 运行时 Ludork，以及基于 Clang AST 的 SFML 绑定生成工具 LuaSF-AutoGenerator 与 PySF-AutoGenerator。我希望通过构建可靠、可复用的系统来解决真实开发问题，并持续拓展沉浸式体验的边界。`,
     ],
   }
 
