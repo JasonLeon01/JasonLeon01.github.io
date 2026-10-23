@@ -1,0 +1,3 @@
+- Produces pybind11-based bindings for SFML from upstream source code.
+- Scans SFML projects and generates binding code with consistent naming and structure.
+- Uses Clang AST to analyze dependencies and generate sources/CMakeLists in topological order.

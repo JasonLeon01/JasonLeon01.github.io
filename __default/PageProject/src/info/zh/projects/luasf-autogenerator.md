@@ -1,0 +1,4 @@
+- 使用 Clang AST 扫描 SFML API，生成 LuaGlue 绑定与 CMake 工程，并从构建后的模块导出 LuaLS stub；
+- 生成基于 CMake 的 LuaSF 模块，支持源码接入或收集后的嵌入式/扩展包接入；
+- 嵌入式使用方链接 LuaSF::LuaSF，普通 Lua 运行时可通过 require("LuaSF") 加载扩展；
+- 按类型自动桥接 std::function 回调，并覆盖 SoundSource.EffectProcessor 的音频线程契约；

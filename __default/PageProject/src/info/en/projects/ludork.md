@@ -1,0 +1,7 @@
+- An Avalonia/.NET 9 editor for maps, tilesets, Actors, animations, curves, structured game data, and text configuration, with asset reference tracking.
+- Lua and Blueprint gameplay with class inheritance, reusable functions, and Actor components; native C++20 extensions use LuaGlue alongside LuaSF and SFML.
+- Visual material graphs compile to GLSL with live previews, exposed parameters, and instance overrides, supporting lighting, shadows, reflections, emission, and vertex displacement.
+- GPU particle effects for Actors and UI, with atlas animation and curves controlling particle properties over their lifetime.
+- A visual declarative UI designer with reusable nested assets and animation timelines, exporting Lua Views and type declarations for gameplay controllers.
+- C# editor plug-ins and Standalone / C++ Source project templates, with integrated export and packaging plus optional FFmpeg video playback.
+- Editor and desktop games on Windows x64 and Apple Silicon macOS; C++ Source projects also package to iOS, HarmonyOS, and Android using Apple Silicon macOS.

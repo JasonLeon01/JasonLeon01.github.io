@@ -1,30 +1,17 @@
 import { Box, Link, Stack, SvgIcon, Typography } from '@mui/material'
 
-export default function HeroPanel() {
+export default function ContactPanel() {
   return (
     <Box
       component="section"
       sx={{
         width: '100%',
         px: { xs: 1, sm: 2, md: 3 },
-        py: { xs: 2, sm: 3, md: 4 },
+        py: { xs: 1, sm: 2, md: 3 },
         textAlign: 'center',
       }}
     >
       <Stack spacing={1} sx={{ alignItems: 'center' }}>
-        <Typography
-          component="h1"
-          sx={{
-            fontSize: { xs: 40, sm: 56, md: 72 },
-            lineHeight: 1.1,
-            fontWeight: 800,
-            letterSpacing: { xs: -0.6, sm: -1, md: -1.2 },
-            m: 0,
-            color: 'text.primary',
-          }}
-        >
-          JasonLeon's Homepage
-        </Typography>
         <Stack
           direction="row"
           spacing={1}

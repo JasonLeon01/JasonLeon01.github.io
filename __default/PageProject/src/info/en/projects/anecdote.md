@@ -1,0 +1,2 @@
+- Built with C++ and the lightweight EasyX graphics library.
+- Designed and implemented smooth combat pacing, input handling, and battle animations.

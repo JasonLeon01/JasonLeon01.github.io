@@ -1,0 +1,4 @@
+- Uses Clang AST to extract the SFML API and generate LuaGlue bindings and CMake files, with LuaLS stubs exported from the built module.
+- Produces a CMake LuaSF module that can be consumed from generated source or from collected embedded/extension packages.
+- Embedded consumers link LuaSF::LuaSF; a plain Lua runtime can load the extension with require("LuaSF").
+- Bridges std::function callbacks in a type-driven way, including the SoundSource.EffectProcessor audio-thread contract.

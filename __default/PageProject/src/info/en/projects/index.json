@@ -1,0 +1,34 @@
+[
+  {
+    "key": "ludork",
+    "name": "Ludork",
+    "summary": "A cross-platform 2D RPG engine with an integrated visual editor, Lua and Blueprint scripting, and an extensible C++20 runtime.",
+    "href": "https://jasonleon01.github.io/Ludork/",
+    "timeRange": "2025-09 ~ Present",
+    "file": "ludork.md"
+  },
+  {
+    "key": "luasf-autogenerator",
+    "name": "LuaSF-AutoGenerator",
+    "summary": "An automated binding generator that exposes SFML to Lua through LuaGlue.",
+    "href": "https://github.com/JasonLeon01/LuaSF-AutoGenerator",
+    "timeRange": "2026-06 ~ Present",
+    "file": "luasf-autogenerator.md"
+  },
+  {
+    "key": "pysf-autogenerator",
+    "name": "PySF-AutoGenerator",
+    "summary": "An automated binding generator for SFML Python APIs.",
+    "href": "https://github.com/JasonLeon01/PySF-AutoGenerator",
+    "timeRange": "2025-08 ~ Present",
+    "file": "pysf-autogenerator.md"
+  },
+  {
+    "key": "anecdote",
+    "name": "ANECDOTE (魔塔·ANECDOTE)",
+    "summary": "A classic tower RPG with polished combat flow and responsive controls.",
+    "href": "https://github.com/JasonLeon01/Mota3",
+    "timeRange": "2023-01 ~ 2023-10",
+    "file": "anecdote.md"
+  }
+]

@@ -1,0 +1,7 @@
+- 基于 Avalonia / .NET 9 构建统一编辑器，支持地图、图块集、Actor、动画、曲线、结构化游戏数据与文本配置编辑，并跟踪资源引用关系；
+- 通过 Lua 与 Blueprint 编写玩法，支持类继承、公共函数与 Actor 组件；运行时基于 LuaSF 与 SFML，使用 LuaGlue 接入原生 C++20 扩展；
+- 可视化材质图编译为 GLSL，支持实时预览、参数暴露与实例覆盖，并提供光照、阴影、反射、自发光和顶点位移；
+- 为 Actor 与 UI 提供 GPU 粒子效果，支持图集动画与粒子属性的生命周期曲线控制；
+- 可视化声明式 UI 设计器支持可复用的嵌套资产与动画时间轴，并为玩法控制器导出 Lua View 和类型声明；
+- 支持 C# 编辑器插件与 Standalone / C++ Source 工程模板，集成工程导出和打包流程，并可选启用 FFmpeg 视频播放；
+- 编辑器与桌面游戏支持 Windows x64 和 Apple Silicon macOS；C++ Source 工程还可在 Apple Silicon macOS 上打包至 iOS、HarmonyOS 与 Android；

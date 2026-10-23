@@ -2,10 +2,10 @@ import { Fragment } from 'react'
 import type { ReactNode } from 'react'
 import { CssBaseline, Divider, List, ListItem } from '@mui/material'
 import { LanguageProvider } from './language.tsx'
+import TopBar from './components/TopBar.tsx'
 import AboutPanel from './panels/About.tsx'
 import EducationPanel from './panels/Education.tsx'
-import HeroPanel from './panels/SelfInfo.tsx'
-import LanguagePanel from './panels/Language.tsx'
+import ContactPanel from './panels/SelfInfo.tsx'
 import SelectedProjectsPanel from './panels/SelectedProjects.tsx'
 import WorkExperiencePanel from './panels/WorkExperience.tsx'
 
@@ -16,8 +16,7 @@ type PanelDefinition = {
 
 function App() {
   const panels: PanelDefinition[] = [
-    { key: 'hero', element: <HeroPanel /> },
-    { key: 'language', element: <LanguagePanel /> },
+    { key: 'contact', element: <ContactPanel /> },
     { key: 'about', element: <AboutPanel /> },
     { key: 'education', element: <EducationPanel /> },
     { key: 'work', element: <WorkExperiencePanel /> },
@@ -27,7 +26,9 @@ function App() {
   return (
     <LanguageProvider>
       <CssBaseline />
+      <TopBar />
       <List
+        component="main"
         disablePadding
         sx={{
           display: 'flex',
@@ -36,7 +37,7 @@ function App() {
           pt: { xs: 2, sm: 3, md: 4 },
           pb: { xs: 6, sm: 7, md: 8 },
           boxSizing: 'border-box',
-          width: '85%',
+          width: { xs: '100%', md: '85%' },
           maxWidth: 1400,
           mx: 'auto',
         }}
@@ -44,6 +45,7 @@ function App() {
         {panels.map((panel, index) => (
           <Fragment key={panel.key}>
             <ListItem
+              component="div"
               disableGutters
               sx={{
                 alignItems: 'stretch',
@@ -54,7 +56,7 @@ function App() {
               {panel.element}
             </ListItem>
             {index < panels.length - 1 ? (
-              <ListItem disableGutters sx={{ width: '100%', py: 2 }}>
+              <ListItem component="div" disableGutters sx={{ width: '100%', py: 2 }}>
                 <Divider
                   flexItem
                   sx={{

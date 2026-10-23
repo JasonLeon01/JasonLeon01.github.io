@@ -1,0 +1,3 @@
+- 基于 SFML3 和 pybind11 制作的 SFML 接口 Python 自动化绑定工具；
+- 支持扫描 SFML 项目源码，生成 pybind11 绑定代码；
+- 使用 Clang AST 扫描 SFML 项目，自动按照依赖的拓扑排序关系生成源文件和 CMakeLists；
