@@ -2,3 +2,5 @@
 * text=auto
 *.sh text eol=lf
 *.bat text eol=crlf
+*.html text eol=lf
+.githooks/* text eol=lf

@@ -29,29 +29,37 @@ export default function SelectedProjectsPanel() {
                     zh: '2025-09 ~ 至今',
                 },
                 summary: {
-                    en: 'A game editor and native C++20 runtime for creating 2D role-playing games.',
-                    zh: '面向 2D 角色扮演游戏创作的游戏编辑器与原生 C++20 运行时。',
+                    en: 'A cross-platform 2D RPG engine with an integrated visual editor, Lua and Blueprint scripting, and an extensible C++20 runtime.',
+                    zh: '面向 2D 角色扮演游戏的跨平台游戏引擎，集成可视化编辑器、Lua 与 Blueprint 脚本系统，以及可扩展的 C++20 运行时。',
                 },
                 details: [
                     {
-                        en: 'Unified visual authoring for projects, maps, tilesets, actors, animations, curves, data, text configuration, and declarative UI.',
-                        zh: '在统一编辑器内管理工程、地图、图块集、Actor、动画、曲线、数据、文本配置与声明式 UI；',
+                        en: 'An Avalonia/.NET 9 editor for maps, tilesets, Actors, animations, curves, structured game data, and text configuration, with asset reference tracking.',
+                        zh: '基于 Avalonia / .NET 9 构建统一编辑器，支持地图、图块集、Actor、动画、曲线、结构化游戏数据与文本配置编辑，并跟踪资源引用关系；',
                     },
                     {
-                        en: 'Blueprint graphs and Lua scripting on a C++20 runtime built with LuaSF and SFML.',
-                        zh: '通过 Blueprint 图与 Lua 脚本编写玩法，运行时基于 LuaSF 与 SFML；',
+                        en: 'Lua and Blueprint gameplay with class inheritance, reusable functions, and Actor components; native C++20 extensions use LuaGlue alongside LuaSF and SFML.',
+                        zh: '通过 Lua 与 Blueprint 编写玩法，支持类继承、公共函数与 Actor 组件；运行时基于 LuaSF 与 SFML，使用 LuaGlue 接入原生 C++20 扩展；',
                     },
                     {
-                        en: 'GPU particle effects for actors and UI, plus world lighting with material-aware surfaces and shadows.',
-                        zh: '为 Actor 与 UI 提供 GPU 粒子效果，并支持基于材质表面的世界光影与阴影；',
+                        en: 'Visual material graphs compile to GLSL with live previews, exposed parameters, and instance overrides, supporting lighting, shadows, reflections, emission, and vertex displacement.',
+                        zh: '可视化材质图编译为 GLSL，支持实时预览、参数暴露与实例覆盖，并提供光照、阴影、反射、自发光和顶点位移；',
                     },
                     {
-                        en: 'C# 13 editor plug-ins, plus Standalone and C++ Source templates (optional FFmpeg).',
-                        zh: '支持 C# 13 编辑器插件，并提供 Standalone 与 C++ Source 工程模板（可选 FFmpeg）；',
+                        en: 'GPU particle effects for Actors and UI, with atlas animation and curves controlling particle properties over their lifetime.',
+                        zh: '为 Actor 与 UI 提供 GPU 粒子效果，支持图集动画与粒子属性的生命周期曲线控制；',
                     },
                     {
-                        en: 'Editor on Windows x64 and Apple Silicon macOS; games also package to iOS, HarmonyOS, and Android.',
-                        zh: '编辑器支持 Windows x64 与 Apple Silicon macOS，游戏还可打包到 iOS、HarmonyOS 与 Android；',
+                        en: 'A visual declarative UI designer with reusable nested assets and animation timelines, exporting Lua Views and type declarations for gameplay controllers.',
+                        zh: '可视化声明式 UI 设计器支持可复用的嵌套资产与动画时间轴，并为玩法控制器导出 Lua View 和类型声明；',
+                    },
+                    {
+                        en: 'C# editor plug-ins and Standalone / C++ Source project templates, with integrated export and packaging plus optional FFmpeg video playback.',
+                        zh: '支持 C# 编辑器插件与 Standalone / C++ Source 工程模板，集成工程导出和打包流程，并可选启用 FFmpeg 视频播放；',
+                    },
+                    {
+                        en: 'Editor and desktop games on Windows x64 and Apple Silicon macOS; C++ Source projects also package to iOS, HarmonyOS, and Android using Apple Silicon macOS.',
+                        zh: '编辑器与桌面游戏支持 Windows x64 和 Apple Silicon macOS；C++ Source 工程还可在 Apple Silicon macOS 上打包至 iOS、HarmonyOS 与 Android；',
                     },
                 ],
             },
@@ -67,13 +75,13 @@ export default function SelectedProjectsPanel() {
                     zh: '2026-06 ~ 至今',
                 },
                 summary: {
-                    en: 'An automated binding generator that exposes SFML to Lua through sol2.',
-                    zh: '通过 sol2 将 SFML 暴露给 Lua 的自动化绑定生成器。',
+                    en: 'An automated binding generator that exposes SFML to Lua through LuaGlue.',
+                    zh: '通过 LuaGlue 将 SFML 暴露给 Lua 的自动化绑定生成器。',
                 },
                 details: [
                     {
-                        en: 'Uses Clang AST to extract the SFML API and generate sol2 bindings, CMake files, and LuaLS stubs.',
-                        zh: '使用 Clang AST 扫描 SFML API，生成 sol2 绑定、CMake 工程与 LuaLS stub；',
+                        en: 'Uses Clang AST to extract the SFML API and generate LuaGlue bindings and CMake files, with LuaLS stubs exported from the built module.',
+                        zh: '使用 Clang AST 扫描 SFML API，生成 LuaGlue 绑定与 CMake 工程，并从构建后的模块导出 LuaLS stub；',
                     },
                     {
                         en: 'Produces a CMake LuaSF module that can be consumed from generated source or from collected embedded/extension packages.',
